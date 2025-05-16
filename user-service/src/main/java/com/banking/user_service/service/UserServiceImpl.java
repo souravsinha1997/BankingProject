@@ -14,6 +14,7 @@ import com.banking.user_service.dto.LoginRequest;
 import com.banking.user_service.dto.ManagerRequest;
 import com.banking.user_service.dto.UserRequest;
 import com.banking.user_service.dto.UserResponse;
+import com.banking.user_service.entity.Role;
 import com.banking.user_service.entity.Token;
 import com.banking.user_service.entity.User;
 import com.banking.user_service.exception.InvalidLoginException;
@@ -87,7 +88,7 @@ public class UserServiceImpl implements UserService{
 		User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException("No User found with id : "+id));
         
         // If the user being deleted is a manager
-        if (user.getRole().equals("MANAGER")) {
+        if (user.getRole().equals(Role.MANAGER)) {
             // Find all users assigned to this manager
             List<User> assignedUsers = userRepo.findAll().stream()
                 .filter(u -> u.getManagerId() != null && u.getManagerId() == id)
@@ -164,7 +165,7 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public List<UserResponse> getAllManagers() {
 		List<User> managers = userRepo.findAll().stream()
-				.filter(user -> user.getRole().equals("MANAGER"))
+				.filter(user -> user.getRole().equals(Role.MANAGER))
 				.collect(Collectors.toList());
 		return managers.stream()
 				.map(UserServiceImpl::entityToResponse)
@@ -176,8 +177,12 @@ public class UserServiceImpl implements UserService{
 		List<User> users = userRepo.findAll().stream()
 				.filter(user -> user.getManagerId() != null && user.getManagerId() == managerId)
 				.collect(Collectors.toList());
+		User manager = userRepo.findById(managerId).orElseThrow(() -> new UserNotFoundException("Manager is not there with id : "+managerId));
+		
 		return users.stream()
 				.map(UserServiceImpl::entityToResponse)
+				.map(u -> { u.setManager(manager.getFirstName()+" "+manager.getLastName());
+					return u;})
 				.collect(Collectors.toList());
 	}
 

@@ -15,10 +15,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,85 +22,47 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Builder
 @Table(name = "users")
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class User implements UserDetails {
+@Getter
+@Setter
+public class User implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotBlank(message = "First name is required")
-    @Size(max = 100)
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
-    @Size(max = 100)
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Please provide a valid email address")
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters long")
     @Column(nullable = false, length = 255)
     private String password;
 
-    @Pattern(regexp = "^\\d{10}$", message = "Phone number must be exactly 10 digits")
     @Column(length = 20)
     private String phone;
     
-    @Column(unique = true, length = 20)
-    private String userName;
-    
-    @Column(length = 20)
-    private String cif;
-    
-    @Column(name = "manager_id")
+    @Column(name="manager_id")
     private Integer managerId;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
-    private Role role;
-    
-    @Column(name = "created_at")
+
+    @Column(nullable = false, unique = true, length = 11)
+    private String cif;
+
+    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    @Column(name = "user_name", nullable = false, length = 50)
+    private String userName;
 
     // Getters and Setters
 
@@ -138,6 +96,10 @@ public class User implements UserDetails {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public void setPassword(String password) {
@@ -176,12 +138,12 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
     public String getUserName() {
         return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
 	@Override

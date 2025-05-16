@@ -19,5 +19,4 @@ public interface UserService {
 	UserResponse assignManager(ManagerRequest request, int id);
 	List<UserResponse> getUsersByManager(int managerId);
 	List<UserResponse> getAllManagers();
-
 }
