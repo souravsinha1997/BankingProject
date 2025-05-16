@@ -1,0 +1,17 @@
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    phone VARCHAR(20),
+    cif CHAR(11) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+ALTER TABLE users ADD COLUMN role VARCHAR(50) NOT NULL DEFAULT 'USER';
+ALTER TABLE users ADD COLUMN user_name VARCHAR(50) NOT NULL;
+ALTER TABLE users ADD COLUMN manager_id int;
+ALTER TABLE users MODIFY COLUMN user_name varchar(50) NOT NULL UNIQUE;
+
+CREATE DATABASE bank_user_service;
+USE bank_user_service;
