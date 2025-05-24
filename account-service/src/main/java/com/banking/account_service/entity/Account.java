@@ -28,7 +28,7 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "account_id")
+    @Column(name = "id")
     private Long accountId;
 
     @Column(name = "account_number", nullable = false, unique = true, length = 20)
