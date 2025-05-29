@@ -48,10 +48,21 @@ public class AccountController {
         String response = accountService.closeAccount(accountNo);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    @PostMapping("/transactions")
-    public ResponseEntity<AccountResponse> creditOrDebitAccount(@RequestBody TransactionRequest request) {
-        AccountResponse response = accountService.creditOrDebitAccount(request);
+    
+    @GetMapping("/cif/{accountNo}")
+    public ResponseEntity<String> getAccountCIF(@PathVariable String accountNo) {
+        String response = accountService.getCIFByAccountNo(accountNo);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+//    @PostMapping("/transactions")
+//    public ResponseEntity<AccountResponse> creditOrDebitAccount(@RequestBody TransactionRequest request) {
+//        AccountResponse response = accountService.creditOrDebitAccount(request);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
+    
+    @GetMapping("/validate/{accountNo}")
+    public ResponseEntity<Boolean> validateAccount(@PathVariable String accountNo){
+    	return ResponseEntity.ok(accountService.validateAccount(accountNo));
     }
 }

@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import com.banking.account_service.client.UserClient;
 import com.banking.account_service.client.dto.AccountRequest;
 import com.banking.account_service.client.dto.AccountResponse;
+import com.banking.account_service.client.dto.BankTransferRequest;
+import com.banking.account_service.client.dto.Status;
 import com.banking.account_service.client.dto.TransactionRequest;
 import com.banking.account_service.client.dto.UserResponse;
 import com.banking.account_service.entity.Account;
@@ -19,8 +21,12 @@ import com.banking.account_service.entity.AccountStatus;
 import com.banking.account_service.exception.InsufficientBalanceException;
 import com.banking.account_service.exception.InvalidCifException;
 import com.banking.account_service.exception.NoAccountFoundException;
+import com.banking.account_service.exception.UnableToCompleteException;
+import com.banking.account_service.rabbitMQ.StatusPublisher;
 import com.banking.account_service.repository.AccountRepository;
 import com.banking.account_service.security.JwtService;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -33,6 +39,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private JwtService jwtService;
+    
+    @Autowired
+    private StatusPublisher statusPublisher;
 
     private Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -97,6 +106,22 @@ public class AccountServiceImpl implements AccountService {
         validateCif(account.getCif());
         return convertToResponse(account);
     }
+    
+    @Override
+    public String getCIFByAccountNo(String accountNo) {
+        Account account = accountRepository.findByAccountNumber(accountNo);
+        if (account == null) {
+            throw new NoAccountFoundException("No account found with account no: " + accountNo);
+        }
+        //validateCif(account.getCif());
+        return account.getCif();
+    }
+    
+    public boolean validateAccount(String accountNo) {
+    	Account account = accountRepository.findByAccountNumber(accountNo);
+    	if(account!=null) return true;
+    	else return false;
+    }
 
     @Override
     public AccountResponse updateAccount(AccountRequest accountDetails) {
@@ -112,29 +137,82 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountResponse creditOrDebitAccount(TransactionRequest request) {
-        Account account = accountRepository.findByAccountNumber(request.getAccountNo());
-        if (account == null) {
-            throw new NoAccountFoundException("Invalid account number");
-        }
-        validateCif(request.getCif());
-        validateCif(account.getCif());
+    public AccountResponse withdrawOrDepositFunds(TransactionRequest request) {
+        try{
+        	Account account = accountRepository.findByAccountNumber(request.getAccountNo());
 
-        BigDecimal amount = request.getAmount();
-        switch (request.getTransaction()) {
-            case "Credit" -> account.setBalance(account.getBalance().add(amount));
-            case "Debit" -> {
-                if (account.getBalance().compareTo(amount) < 0) {
-                    throw new InsufficientBalanceException("Insufficient balance in account");
-                }
-                account.setBalance(account.getBalance().subtract(amount));
-            }
-            default -> throw new IllegalArgumentException("Invalid transaction type");
-        }
+        	if (account == null) {
+        		throw new NoAccountFoundException("Invalid account number");
+        	}
+        
 
-        Account updatedAccount = accountRepository.save(account);
-        return convertToResponse(updatedAccount);
+        	BigDecimal amount = request.getAmount();
+        	switch (request.getTransaction()) {
+            	case "DEPOSIT" -> account.setBalance(account.getBalance().add(amount));
+            	case "WITHDRAW" -> {
+            		if (account.getBalance().compareTo(amount) < 0) {
+            			throw new InsufficientBalanceException("Insufficient balance in account");
+            		}
+            		account.setBalance(account.getBalance().subtract(amount));
+            	}
+            	default -> throw new IllegalArgumentException("Invalid transaction type");
+        	}
+
+        	Account updatedAccount = accountRepository.save(account);
+        	
+        	publishStatus(request.getTxnRefNo(),"SUC");
+        	return convertToResponse(updatedAccount);
+        } catch (NoAccountFoundException | InsufficientBalanceException | IllegalArgumentException e) {
+            publishStatus(request.getTxnRefNo(), "FAL");
+            throw e;
+        } catch (Exception e) {
+            publishStatus(request.getTxnRefNo(), "FAL");
+            throw new UnableToCompleteException("Unable to complete transaction",e);
+        }
+        
     }
+    
+    private void publishStatus(String txnRefNo, String statusCode) {
+        Status status = new Status(txnRefNo, statusCode);
+        statusPublisher.sendTransactionQueue(status);
+    }
+    
+    @Override
+    @Transactional
+    public void transferFunds(BankTransferRequest request) {
+        try {
+            Account fromAccount = accountRepository.findByAccountNumber(request.getFromAccount());
+            Account toAccount = accountRepository.findByAccountNumber(request.getToAccount());
+
+            if (fromAccount == null || toAccount == null) {
+                throw new NoAccountFoundException("Invalid source or destination account");
+            }
+
+            BigDecimal transferAmount = request.getAmmount();
+            BigDecimal fromBalance = fromAccount.getBalance();
+
+            if (fromBalance.compareTo(transferAmount) < 0) {
+                throw new InsufficientBalanceException("Insufficient balance in account");
+            }
+
+            fromAccount.setBalance(fromBalance.subtract(transferAmount));
+            toAccount.setBalance(toAccount.getBalance().add(transferAmount));
+
+            accountRepository.save(fromAccount);
+            accountRepository.save(toAccount);
+
+            publishStatus(request.getTxnRefNo(), "SUC");
+
+        } catch (NoAccountFoundException | InsufficientBalanceException e) {
+            publishStatus(request.getTxnRefNo(), "FAL");
+            throw e;
+        } catch (Exception e) {
+            publishStatus(request.getTxnRefNo(), "FAL");
+            throw new UnableToCompleteException("Transfer failed", e);
+        }
+    }
+    
+    
 
     private AccountResponse convertToResponse(Account account) {
         AccountResponse response = new AccountResponse();

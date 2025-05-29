@@ -35,6 +35,7 @@ public class SecurityConfig {
 	        return http
 	                .csrf(csrf -> csrf.disable())
 	                .authorizeHttpRequests(req -> req
+	                		.requestMatchers("/api/accounts/validate/*").permitAll()
 	                        .requestMatchers("/api/accounts/**").hasRole("USER")
 	                        .requestMatchers(
 	                                "/v3/api-docs/**",

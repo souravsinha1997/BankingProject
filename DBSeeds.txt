@@ -45,3 +45,20 @@ CREATE TABLE account (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+CREATE DATABASE bank_transaction_service;
+USE bank_transaction_service;
+CREATE TABLE transactions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    reference_no VARCHAR(50) NOT NULL UNIQUE,
+    cif VARCHAR(20) NOT NULL,
+    user_account VARCHAR(20) NOT NULL,
+    amount DECIMAL(15, 2) NOT NULL CHECK (amount > 0),
+    bnf_account VARCHAR(20), -- Nullable
+    bnf_ifsc VARCHAR(11),    -- Nullable
+    bnf_bank VARCHAR(100),   -- Nullable
+    txn_type VARCHAR(20) NOT NULL,  -- Replaced ENUM
+    txn_status VARCHAR(20) DEFAULT 'pending', -- Replaced ENUM
+    txn_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+ALTER TABLE bank_transaction_service.transactions MODIFY COLUMN txn_type VARCHAR(50) NOT NULL;

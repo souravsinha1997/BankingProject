@@ -9,10 +9,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.banking.beneficiary_service.client.AccountClient;
 import com.banking.beneficiary_service.dto.BeneficiaryRequest;
 import com.banking.beneficiary_service.dto.BeneficiaryResponse;
 import com.banking.beneficiary_service.entity.Beneficiary;
 import com.banking.beneficiary_service.exception.BeneficiaryNotFoundException;
+import com.banking.beneficiary_service.exception.InvalidAccountNoException;
 import com.banking.beneficiary_service.repository.BeneficiaryRepository;
 import com.banking.beneficiary_service.security.JwtService;
 
@@ -24,6 +26,9 @@ public class BeneficiaryServiceImpl implements BeneficiaryService{
 
 	@Autowired
 	private JwtService jwtService;
+	
+	@Autowired
+	private AccountClient accountClient;
 	
     private Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -73,6 +78,12 @@ public class BeneficiaryServiceImpl implements BeneficiaryService{
 
     @Override
     public BeneficiaryResponse addBeneficiary(BeneficiaryRequest beneficiaryRequest) {
+    	
+    	String accountNo = beneficiaryRequest.getAccountNo();
+    	if(!accountClient.validateAccount(accountNo).getBody()) {
+    		throw new InvalidAccountNoException("Invalid Beneficiary Account");
+    	}
+    	
         Long userId = getCurrentUserId();
         Beneficiary beneficiary = convertToEntity(beneficiaryRequest);
         beneficiary.setUserId(userId);

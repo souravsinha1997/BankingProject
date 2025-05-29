@@ -13,9 +13,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TransactionRequest {
 
-	private String cif;
 	private String accountNo;
 	private BigDecimal amount;
 	private String transaction; // credit or debit
-	
+	private String txnRefNo;
 }
