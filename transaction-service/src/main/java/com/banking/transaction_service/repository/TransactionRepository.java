@@ -9,4 +9,5 @@ import com.banking.transaction_service.entity.Transactions;
 public interface TransactionRepository extends JpaRepository<Transactions, Long>{
 
 	List<Transactions> findByReferenceNo(String referenceNo);
+	List<Transactions> findByCifAndUserAccount(String cif, String userAccount);
 }

@@ -9,16 +9,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.banking.account_service.client.TransactionClient;
 import com.banking.account_service.client.UserClient;
 import com.banking.account_service.client.dto.AccountRequest;
 import com.banking.account_service.client.dto.AccountResponse;
 import com.banking.account_service.client.dto.BankTransferRequest;
+import com.banking.account_service.client.dto.StatementRequest;
+import com.banking.account_service.client.dto.StatementTransaction;
 import com.banking.account_service.client.dto.Status;
 import com.banking.account_service.client.dto.TransactionRequest;
 import com.banking.account_service.client.dto.UserResponse;
+import com.banking.account_service.dto.AccountStatement;
 import com.banking.account_service.entity.Account;
 import com.banking.account_service.entity.AccountStatus;
 import com.banking.account_service.exception.InsufficientBalanceException;
+import com.banking.account_service.exception.InvalidAccountNoException;
 import com.banking.account_service.exception.InvalidCifException;
 import com.banking.account_service.exception.NoAccountFoundException;
 import com.banking.account_service.exception.UnableToCompleteException;
@@ -42,6 +47,10 @@ public class AccountServiceImpl implements AccountService {
     
     @Autowired
     private StatusPublisher statusPublisher;
+    
+    
+    @Autowired
+    private TransactionClient transactionClient;
 
     private Long getCurrentUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -242,5 +251,33 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account not found with id: " + accountId));
     }
+
+	@Override
+	public AccountStatement getAccountStatement(String accountNo) {
+		String cif = getCurrentCif();
+		Account account = accountRepository.findByAccountNumber(accountNo);
+		if(!account.getCif().equals(cif)) {
+			throw new InvalidAccountNoException("Invalid Account no in request");
+		}
+		List<StatementTransaction> transactions = transactionClient.getAccountStatement(accountNo).getBody();
+		
+		List<StatementTransaction> updated = transactions.stream().map(t -> {
+								if(t.getTxnType().equals("DEPOSIT")) t.setTxnType("Credit");
+								if(t.getTxnType().equals("WITHDRAW")) t.setTxnType("Debit");
+								if(t.getTxnType().contains("Credit")) t.setTxnType("Credit");
+								if(t.getTxnType().contains("Debit")) t.setTxnType("Debit");
+								return t;
+						}).toList();
+		
+		AccountStatement statement = new AccountStatement();
+		statement.setAccountNo(accountNo);
+		statement.setAccountType(account.getAccountType().toString());
+		statement.setBalance(account.getBalance());
+		statement.setCif(account.getCif());
+		statement.setCurrency(account.getCurrency());
+		statement.setTransactions(updated);
+		statement.setStatus(account.getStatus().toString());
+		return statement;
+	}
 }
 

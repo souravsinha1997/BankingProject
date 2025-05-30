@@ -10,6 +10,7 @@ import java.util.List;
 import com.banking.account_service.client.dto.AccountRequest;
 import com.banking.account_service.client.dto.AccountResponse;
 import com.banking.account_service.client.dto.TransactionRequest;
+import com.banking.account_service.dto.AccountStatement;
 import com.banking.account_service.service.AccountService;
 
 @RestController
@@ -64,5 +65,10 @@ public class AccountController {
     @GetMapping("/validate/{accountNo}")
     public ResponseEntity<Boolean> validateAccount(@PathVariable String accountNo){
     	return ResponseEntity.ok(accountService.validateAccount(accountNo));
+    }
+    
+    @GetMapping("/statement/{accountNo}")
+    public ResponseEntity<AccountStatement> getAccountStatement(@PathVariable String accountNo){
+    	return ResponseEntity.ok(accountService.getAccountStatement(accountNo));
     }
 }

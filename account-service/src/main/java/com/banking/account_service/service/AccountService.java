@@ -6,6 +6,7 @@ import com.banking.account_service.client.dto.AccountRequest;
 import com.banking.account_service.client.dto.AccountResponse;
 import com.banking.account_service.client.dto.BankTransferRequest;
 import com.banking.account_service.client.dto.TransactionRequest;
+import com.banking.account_service.dto.AccountStatement;
 
 public interface AccountService {
 	 	AccountResponse createAccount(AccountRequest accountRequest);
@@ -17,4 +18,5 @@ public interface AccountService {
 	    void transferFunds(BankTransferRequest request);
 	    boolean validateAccount(String accountNo);
 	    String getCIFByAccountNo(String accountNo);
+	    AccountStatement getAccountStatement(String accountNo);
 }

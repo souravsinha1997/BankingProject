@@ -18,6 +18,8 @@ import com.banking.transaction_service.client.dto.BankTransactionRequest;
 import com.banking.transaction_service.client.dto.BankTransferRequest;
 import com.banking.transaction_service.client.dto.BeneficiaryRequest;
 import com.banking.transaction_service.client.dto.BeneficiaryResponse;
+import com.banking.transaction_service.client.dto.StatementRequest;
+import com.banking.transaction_service.client.dto.StatementTransaction;
 import com.banking.transaction_service.client.dto.Status;
 import com.banking.transaction_service.client.dto.UserResponse;
 import com.banking.transaction_service.dto.TransactionRequest;
@@ -219,6 +221,23 @@ public class TransactionServiceImpl implements TransactionService{
         String randomSuffix = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         return prefix + "-" + timestamp + "-" + randomSuffix;
     }
+
+	@Override
+	public List<StatementTransaction> getAccountStatement(String accountNo) {
+		String cif = getCurrentCif();
+		List<Transactions> transactions = transactionRepo.findByCifAndUserAccount(cif, accountNo);
+		List<StatementTransaction> statement = transactions.stream().map(t -> {
+																			StatementTransaction statementTransaction = new StatementTransaction();
+																			statementTransaction.setAccoutNo(t.getUserAccount());
+																			statementTransaction.setAmount(t.getAmount());
+																			statementTransaction.setBnfAccount(t.getBeneficiaryAccount());
+																			statementTransaction.setTxnDate(t.getTransactionDate());
+																			statementTransaction.setTxnRefNo(t.getReferenceNo());
+																			statementTransaction.setTxnType(t.getTransactionType());
+																			return statementTransaction;
+																			}).toList();
+		return statement;
+	}
 
 
 }
