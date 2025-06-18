@@ -46,8 +46,20 @@ CREATE TABLE account (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE TABLE loans (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cif VARCHAR(50) NOT NULL,
+    account_no VARCHAR(30) NOT NULL,
+    amount DECIMAL(15,2) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    req_id INT NOT NULL,
+    start_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
 CREATE DATABASE bank_transaction_service;
 USE bank_transaction_service;
+
 CREATE TABLE transactions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     reference_no VARCHAR(50) NOT NULL UNIQUE,
@@ -61,4 +73,25 @@ CREATE TABLE transactions (
     txn_status VARCHAR(20) DEFAULT 'pending', -- Replaced ENUM
     txn_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-ALTER TABLE bank_transaction_service.transactions MODIFY COLUMN txn_type VARCHAR(50) NOT NULL;
+
+
+
+CREATE DATABASE bank_request_service;
+USE bank_request_service;
+
+CREATE TABLE requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cif VARCHAR(50) NOT NULL,
+    account_no VARCHAR(30) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    initiation_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    approver INT,
+    
+    INDEX idx_cif (cif),
+    INDEX idx_account_no (account_no),
+    INDEX idx_status (status)
+);
+
+
