@@ -104,10 +104,17 @@ Swagger/OpenAPI	API documentation
 📂 Project Structure
 
 BankingProject/
+
 ├── user-service/
+
 ├── account-service/
+
 ├── beneficiary-service/
+
 ├── transaction-service/
+
 ├── request-service/
+
 ├── DatabaseQueries/
+
 └── README.md
