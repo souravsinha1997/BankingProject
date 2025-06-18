@@ -1,6 +1,6 @@
 BankingProject:
 
-Overview This project is a comprehensive banking platform designed to handle various aspects of Internet Banking, including user management, account management, beneficiary management, transactions, service requests(Loan). It follows a microservices architecture to ensure scalability and maintainability.
+This project is a comprehensive banking platform designed to handle various aspects of Internet Banking, including user management, account management, beneficiary management, transactions, service requests(Loan). It follows a microservices architecture to ensure scalability and maintainability.
 
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
