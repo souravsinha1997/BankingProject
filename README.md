@@ -2,16 +2,14 @@ BankingProject:
 
 Overview This project is a comprehensive banking platform designed to handle various aspects of Internet Banking, including user management, account management, beneficiary management, transactions, service requests(Loan). It follows a microservices architecture to ensure scalability and maintainability.
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 
 Architecture:
 The application is structured into several microservices:
 
-  User service : User service manages user accounts and mamages them with the roles MANAGER, USER, ADMIN.
-
-                 Admins can check all the data and based on requirement they can update the customer data.
-
-                 Managers can check who are the customers under them, also approve the loan requests(From Request service) raised by those customers.
+  User service : User service manages user accounts and mamages them with the roles MANAGER, USER, ADMIN. Admins can check all the data and based on requirement they can update the customer data. Managers can check who are the customers under them, also approve the loan requests(From Request service) raised by those customers.
 
   Account service : Once successful creation of the customer they can create a bank account with different types like Savings. All the accounts are mapped with user CIF which is generated at the time of user creation.
 
@@ -22,14 +20,18 @@ The application is structured into several microservices:
   Request service : Customers can raise a request for Loans through this service. Once new request is raised it manager of that customer will have the premission to approve or reject that request. Once it gets approved by the respective manager it details will be added to the Loans table and the ammount will be credited to the customer account.
 
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 Database Queries
 
 The DatabaseQueries directory contains SQL scripts and queries related to the database operations of the application.
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 
 Technologies Used
 
@@ -46,7 +48,10 @@ RabbitMQ: For handling asynchronous communication between services.
 Swagger/OpenAPI: For API documentation.
 
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 
 Future changes:
 1. Gateway service
