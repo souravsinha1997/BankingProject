@@ -10,6 +10,7 @@ import com.banking.transaction_service.dto.TransactionRequest;
 public interface TransactionService {
 
 	public String doTransaction(TransactionRequest request);
+	public String doLoanTransaction(TransactionRequest request);
 	public void updateTransaction(Status status);
 	public List<StatementTransaction> getAccountStatement(String accountNo);
 }

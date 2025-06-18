@@ -36,6 +36,7 @@ public class SecurityConfig {
 	        return http
 	                .csrf(csrf -> csrf.disable())
 	                .authorizeHttpRequests(req -> req
+	                		.requestMatchers("/api/transactions/loans").hasRole("MANAGER")
 	                        .requestMatchers("/api/transactions/**").hasRole("USER")
 	                        .requestMatchers(
 	                                "/v3/api-docs/**",

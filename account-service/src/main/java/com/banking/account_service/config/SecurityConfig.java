@@ -35,6 +35,8 @@ public class SecurityConfig {
 	        return http
 	                .csrf(csrf -> csrf.disable())
 	                .authorizeHttpRequests(req -> req
+	                		.requestMatchers("/api/loans/*").permitAll()
+	                		.requestMatchers("/api/loans").hasRole("MANAGER")
 	                		.requestMatchers("/api/accounts/validate/*").permitAll()
 	                        .requestMatchers("/api/accounts/**").hasRole("USER")
 	                        .requestMatchers(

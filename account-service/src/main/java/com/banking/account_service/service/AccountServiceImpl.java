@@ -157,6 +157,7 @@ public class AccountServiceImpl implements AccountService {
 
         	BigDecimal amount = request.getAmount();
         	switch (request.getTransaction()) {
+        		case "LOAN" -> account.setBalance(account.getBalance().add(amount));
             	case "DEPOSIT" -> account.setBalance(account.getBalance().add(amount));
             	case "WITHDRAW" -> {
             		if (account.getBalance().compareTo(amount) < 0) {

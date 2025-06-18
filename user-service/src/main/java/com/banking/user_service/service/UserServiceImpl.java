@@ -228,4 +228,10 @@ public class UserServiceImpl implements UserService{
 	    }
 	    return sb.toString();
 	}
+
+	@Override
+	public Integer getManegerId(String cif) {
+		Integer managerId = userRepo.findByCif(cif).getManagerId();
+		return managerId;
+	}
 }

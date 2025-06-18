@@ -100,7 +100,7 @@ public class TransactionServiceImpl implements TransactionService{
 		
 		if(bnf_id==0) {
 			if(bnf_account==null) {
-				if(txn_type.equals(TransactionType.DEPOSIT)|| txn_type.equals(TransactionType.WITHDRAW)) {
+				if(txn_type.equals(TransactionType.DEPOSIT)|| txn_type.equals(TransactionType.WITHDRAW) || txn_type.equals(TransactionType.LOAN)) {
 					System.out.println(txn_type);
 					BankTransactionRequest transactionRequest = new BankTransactionRequest();
 					transactionRequest.setAccountNo(fromAccount);
@@ -176,6 +176,48 @@ public class TransactionServiceImpl implements TransactionService{
 			//**RabbitMQ call for the bank transfer
 			publisher.sendTransferQueue(bankTransfer);
 		}
+		
+		return "Transaction initiated successfully with reference no : "+txnRefNo;
+	}
+	
+	
+	
+	@Override
+	@Transactional
+	public String doLoanTransaction(TransactionRequest request) {
+		
+		String fromAccount = request.getAccountNo();
+		String cif = request.getCif();
+		BigDecimal ammount = request.getAmmount();
+		
+		int bnf_id = request.getBnf_id();
+		
+		
+		TransactionType txn_type = request.getTransactionType();
+		
+		
+		String txnRefNo = generateTransactionReferenceNo();
+		
+		if(bnf_id==0) {
+				if(txn_type.equals(TransactionType.LOAN)) {
+					System.out.println(txn_type);
+					BankTransactionRequest transactionRequest = new BankTransactionRequest();
+					transactionRequest.setAccountNo(fromAccount);
+					transactionRequest.setAmount(ammount);
+					transactionRequest.setTransaction(txn_type.toString());
+					transactionRequest.setTxnRefNo(txnRefNo);
+				
+					//Transaction table entry with pending status
+					Transactions transactions = createTransactionsObject(fromAccount,null,ammount,txnRefNo,txn_type.toString(),cif,null,null);
+					transactionRepo.save(transactions);
+					
+					
+					//** RabbitMQ call for transaction
+					publisher.sendTransactionQueue(transactionRequest);
+					
+				}
+			}
+		
 		
 		return "Transaction initiated successfully with reference no : "+txnRefNo;
 	}

@@ -39,4 +39,9 @@ public class UserController {
     public ResponseEntity<UserResponse> getUser(@PathVariable int id) {
         return ResponseEntity.ok(userService.getUser(id));
     }
+    
+    @GetMapping("/manager/{cif}")
+    public ResponseEntity<Integer> getManagerId(@PathVariable String cif){
+    	return ResponseEntity.ok(userService.getManegerId(cif));
+    }
 }

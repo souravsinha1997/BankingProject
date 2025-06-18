@@ -27,6 +27,11 @@ public class TransactionController {
 		return ResponseEntity.ok(transactionService.doTransaction(request));
 	}
 	
+	@PostMapping("/loans")
+	public ResponseEntity<String> completeLoanTransactions(@RequestBody TransactionRequest request){
+		return ResponseEntity.ok(transactionService.doLoanTransaction(request));
+	}
+	
 	@GetMapping("/statement/{accountNo}")
 	public ResponseEntity<List<StatementTransaction>> getAccountStatement(@PathVariable String accountNo){
 		return ResponseEntity.ok(transactionService.getAccountStatement(accountNo));
