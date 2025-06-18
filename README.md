@@ -25,6 +25,8 @@ Managers: View customers assigned to them and approve/reject their loan requests
 
 Customers can open accounts (e.g., Savings accounts).
 
+Customers can generate account statement.
+
 Each account is linked to a CIF (Customer Information File) generated at user creation.
 
 
