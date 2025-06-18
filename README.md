@@ -65,6 +65,11 @@ Entry added to Loans table.
 Approved amount credited to the customer account.
 
 
+👥 Gateway Service
+
+API Gateway that routes requests to appropriate services.
+
+
 
 
 🗃️ Database
