@@ -100,7 +100,6 @@ Swagger/OpenAPI	API documentation
 
 📈 Future Enhancements
 
-✅ API Gateway Service (Zuul or Spring Cloud Gateway)
 
 ✅ Distributed Tracing with Zipkin
 
